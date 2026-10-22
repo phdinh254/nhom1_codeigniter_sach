@@ -1,3 +1,13 @@
+# Nhóm 1 — Quản lý sách với CodeIgniter 4
+
+Phần Database & Model của **Lê Đăng Huy**, nhánh `feature/database-model`:
+
+- CSDL `quan_ly_sach`; migration `books`, `users`.
+- `BookModel`, `UserModel`, dữ liệu demo và kiểm thử database/model.
+- [Hướng dẫn từng bước bằng VS Code, phpMyAdmin và Git](docs/HUONG_DAN_LE_DANG_HUY.md).
+
+Yêu cầu PHP **8.2+**. Xem hướng dẫn trước khi chạy migration.
+
 # CodeIgniter 4 Application Starter
 
 ## What is CodeIgniter?
