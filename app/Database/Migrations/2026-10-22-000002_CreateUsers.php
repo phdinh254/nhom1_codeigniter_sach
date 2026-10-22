@@ -8,6 +8,10 @@ class CreateUsers extends Migration
 {
     public function up()
     {
+        // Authentication may already have created users on another branch.
+        if ($this->db->tableExists('users')) {
+            return;
+        }
         $this->forge->addField([
             'id' => ['type' => 'INT', 'unsigned' => true, 'auto_increment' => true],
             'username' => ['type' => 'VARCHAR', 'constraint' => 50],
@@ -26,6 +30,6 @@ class CreateUsers extends Migration
 
     public function down()
     {
-        $this->forge->dropTable('users');
+        $this->forge->dropTable('users', true);
     }
 }

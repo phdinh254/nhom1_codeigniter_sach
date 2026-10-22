@@ -69,7 +69,11 @@ php spark migrate:status
 php spark db:seed DemoSeeder
 ```
 
-Kết quả cần kiểm tra: migration báo hoàn tất; trạng thái hai migration đã chạy; phpMyAdmin có ba bảng `books`, `users`, `migrations`. Bảng `books` có ba sách mẫu, bảng `users` có tài khoản thường `huy_demo`.
+Kết quả cần kiểm tra: migration báo hoàn tất; các migration đã chạy; phpMyAdmin có ba bảng `books`, `users`, `migrations`. Bảng `books` có ba sách mẫu, bảng `users` có tài khoản thường `huy_demo`.
+
+Sau khi tích hợp nhánh Authentication, chạy `php spark migrate` cả với database đã có dữ liệu. Hai migration tạo users sẽ bỏ qua bảng đã tồn tại; migration `AlignUsersForAuthentication` thống nhất cấu trúc. Nếu bảng cũ có cột `password` chứa hash, migration đổi tên thành `password_hash` và giữ nguyên hash cùng tài khoản. Migration cũng bổ sung `is_active`, `last_login_at` và thống nhất độ dài tên/email, chỉ mục email. Không cần xóa database hoặc chạy refresh. Nếu dữ liệu email cũ bị trùng, cần xử lý trùng trước khi tạo chỉ mục UNIQUE.
+
+Migration thống nhất cấu trúc có `down()` giữ nguyên các cột đã bổ sung để bảo toàn dữ liệu và khả năng đăng nhập; rollback toàn bộ vẫn xóa bảng qua các migration tạo bảng trước đó.
 
 `DemoSeeder` chỉ dành cho bài demo cục bộ. Mật khẩu mẫu công khai là `DemoHuy@2026`, được băm trước khi lưu; không dùng tài khoản này trên hệ thống công khai. Chạy lại seeder sẽ bỏ qua dữ liệu mẫu đã tồn tại, không ghi đè dữ liệu đã sửa.
 
@@ -79,6 +83,8 @@ Kết quả cần kiểm tra: migration báo hoàn tất; trạng thái hai migr
 | --- | --- |
 | `app/Database/Migrations/2026-10-22-000001_CreateBooks.php` | Tạo/xóa bảng books qua up/down |
 | `app/Database/Migrations/2026-10-22-000002_CreateUsers.php` | Tạo/xóa bảng users, UNIQUE username và email |
+| `app/Database/Migrations/2026-10-22-000001_CreateUsersTable.php` | Migration users của nhánh Authentication; không tạo lại bảng đã có |
+| `app/Database/Migrations/2026-10-22-000003_AlignUsersForAuthentication.php` | Thống nhất schema users và giữ dữ liệu từ cả hai nhánh |
 | `app/Models/BookModel.php` | CRUD sách, validation, timestamps |
 | `app/Models/UserModel.php` | CRUD người dùng, validation, băm mật khẩu |
 | `app/Database/Seeds/BookSeeder.php`, `DemoSeeder.php` | Dữ liệu mẫu để kiểm tra |
@@ -105,9 +111,11 @@ Kết quả cần kiểm tra: migration báo hoàn tất; trạng thái hai migr
 | id | INT UNSIGNED, PK, tự tăng | Mã người dùng |
 | username | VARCHAR(50), UNIQUE | Tên đăng nhập |
 | full_name | VARCHAR(150) | Họ tên |
-| email | VARCHAR(191), UNIQUE | Email |
-| password | VARCHAR(255) | Chuỗi băm mật khẩu |
-| role | VARCHAR(20), mặc định user | Vai trò; không nhận từ dữ liệu đăng ký qua model |
+| email | VARCHAR(191), UNIQUE, NULL | Email tùy chọn; khớp tài khoản bị khóa của nhóm |
+| password_hash | VARCHAR(255) | Chuỗi băm mật khẩu; không lưu mật khẩu gốc |
+| role | VARCHAR(20), mặc định user | Vai trò, chỉ cập nhật qua chức năng đã kiểm tra quyền |
+| is_active | TINYINT, mặc định 1 | 1: hoạt động; 0: bị khóa |
+| last_login_at | DATETIME, NULL | Lần đăng nhập gần nhất |
 | created_at, updated_at | DATETIME, NULL | Model tự ghi thời gian |
 
 Ảnh phân công không quy định chi tiết tên cột. Cấu trúc trên là thiết kế cho nhóm dùng chung; thành viên làm controller/view cần thống nhất tên trường này. Hai bảng độc lập, chưa có nghiệp vụ yêu cầu khóa ngoại giữa chúng.
@@ -133,10 +141,11 @@ $users = new \App\Models\UserModel();
 // Cập nhật username/email giữ nguyên: gửi kèm id để loại chính dòng đó khỏi kiểm tra trùng.
 $users->update($userId, ['id' => $userId, 'email' => $newEmail]);
 // Khi đổi hồ sơ mà không đổi mật khẩu: bỏ hẳn khóa password khỏi dữ liệu update.
-// Đăng nhập: password_verify($passwordNhap, $user['password']).
+// Đăng nhập: $users->verifyCredentials($username, $passwordNhap).
+// Auth::attemptLogin tiếp tục kiểm tra is_active và cập nhật last_login_at.
 ```
 
-Controller cần kiểm tra kết quả `insert/update` và hiển thị `errors()` khi thất bại; chỉ lấy các trường cho phép từ request. Khi trả dữ liệu người dùng ra giao diện/API, loại trường `password`. Chức năng đăng nhập, phân quyền, controller và giao diện thuộc phần tích hợp của nhóm.
+Controller cần kiểm tra kết quả `insert/update` và hiển thị `errors()` khi thất bại; chỉ lấy các trường cho phép từ request. Không lấy role hoặc is_active trực tiếp từ form đăng ký; các trường này phục vụ seeder và chức năng quản trị đã kiểm tra quyền. Khi trả dữ liệu người dùng ra giao diện/API, loại trường `password_hash`. Các hàm findByUsername, verifyCredentials của nhóm được giữ để tích hợp đăng nhập và phân quyền.
 
 ## 6. Kiểm tra và chụp ảnh minh chứng
 
@@ -152,8 +161,8 @@ Chuẩn bị các ảnh sau bằng Snipping Tool (`Windows + Shift + S`):
 
 1. phpMyAdmin chọn `quan_ly_sach`, nhìn thấy `books`, `users`, `migrations`.
 2. Bảng `books` tab **Structure** và **Browse**, thấy cấu trúc và ba sách mẫu.
-3. Bảng `users` tab **Structure** và **Browse**, thấy dữ liệu mẫu và password dạng hash.
-4. Terminal VS Code có `php spark migrate` báo thành công và `php spark migrate:status`.
+3. Bảng `users` tab **Structure** và **Browse**, thấy dữ liệu mẫu và cột password_hash dạng hash, is_active, last_login_at.
+4. Terminal VS Code có `php spark migrate` báo thành công và `php spark migrate:status` (bao gồm các migration tích hợp của nhóm).
 5. Nếu chạy được test, chụp kết quả PHPUnit để bổ sung minh chứng.
 
 Ảnh phải chụp từ lần chạy thật trên máy, không dùng ảnh dựng. Hướng dẫn này không thay cho minh chứng đã chạy thành công.
@@ -184,7 +193,7 @@ Sau khi push, mở nhánh trên GitHub để kiểm tra commit. Chỉ tạo/merg
 - **composer not recognized**: cài Composer với PHP 8.2+ và mở terminal mới.
 - **Unable to connect / Access denied**: Start MySQL, kiểm tra host/cổng/tài khoản trong `.env`.
 - **Unknown database quan_ly_sach**: chạy SQL ở bước 2 trước migration.
-- **Nothing to migrate**: chạy `php spark migrate:status`; nếu hai migration có trạng thái đã chạy thì bình thường.
+- **Nothing to migrate**: chạy `php spark migrate:status`; nếu các migration có trạng thái đã chạy thì bình thường.
 - **not a git repository**: đang mở bản ZIP hoặc thư mục cha; dùng bản clone ở bước 1.
 
-Không chạy `migrate:rollback`, `migrate:refresh` trên database có dữ liệu cần giữ: hai migration down sẽ xóa bảng tương ứng.
+Không chạy `migrate:rollback`, `migrate:refresh` trên database có dữ liệu cần giữ: rollback các migration tạo bảng sẽ xóa bảng tương ứng.
