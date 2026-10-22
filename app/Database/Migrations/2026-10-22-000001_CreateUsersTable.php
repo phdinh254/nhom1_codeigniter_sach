@@ -12,6 +12,10 @@ class CreateUsersTable extends Migration
 {
     public function up()
     {
+        // Preserve users created by the Database & Model branch before merging.
+        if ($this->db->tableExists('users')) {
+            return;
+        }
         $this->forge->addField([
             'id' => [
                 'type'           => 'INT',
@@ -67,6 +71,6 @@ class CreateUsersTable extends Migration
 
     public function down()
     {
-        $this->forge->dropTable('users');
+        $this->forge->dropTable('users', true);
     }
 }
