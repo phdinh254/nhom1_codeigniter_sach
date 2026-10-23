@@ -15,7 +15,7 @@ class Auth extends BaseController
     public function login(): RedirectResponse|string
     {
         if (session()->get('isLoggedIn')) {
-            return redirect()->to('/dashboard');
+            return redirect()->to('/books');
         }
 
         return view('auth/login');
@@ -67,8 +67,12 @@ class Auth extends BaseController
 
         $userModel->update($user['id'], ['last_login_at' => date('Y-m-d H:i:s')]);
 
+        // Trang người dùng định vào trước khi bị yêu cầu đăng nhập (AuthFilter lưu), mặc định là danh sách sách
+        $session     = session();
+        $redirectUrl = $session->get('redirect_url') ?? 'books';
+        $session->remove('redirect_url');
+
         // Đổi session ID sau khi đăng nhập để chống session fixation
-        $session = session();
         $session->regenerate(true);
         $session->set([
             'isLoggedIn' => true,
@@ -78,7 +82,8 @@ class Auth extends BaseController
             'role'       => $user['role'],
         ]);
 
-        return redirect()->to('/dashboard')->with('success', 'Đăng nhập thành công. Xin chào ' . $user['full_name'] . '!');
+        // site_url() luôn giữ chuyển hướng trong website, không cho đi sang domain khác
+        return redirect()->to(site_url($redirectUrl))->with('success', 'Đăng nhập thành công. Xin chào ' . $user['full_name'] . '!');
     }
 
     /**
