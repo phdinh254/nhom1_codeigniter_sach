@@ -15,16 +15,33 @@ class UserModel extends Model
     protected $useTimestamps = true;
     protected $validationRules = [
         'id' => 'permit_empty|is_natural_no_zero',
-        'username' => 'required|min_length[3]|max_length[50]|alpha_numeric_punct|is_unique[users.username,id,{id}]',
-        'full_name' => 'required|max_length[150]',
+        'username' => 'required|regex_match[/\A[A-Za-z0-9][A-Za-z0-9_.-]{2,49}\z/]|is_unique[users.username,id,{id}]',
+        'full_name' => 'library_text[150]',
         'email' => 'permit_empty|valid_email|max_length[191]|is_unique[users.email,id,{id}]',
         'password' => 'required|min_length[8]|regex_match[/\A[^\x00]{8,72}\z/]',
-        'role' => 'permit_empty|in_list[user,admin]',
-        'is_active' => 'permit_empty|in_list[0,1]',
+        'role' => 'if_exist|in_list[user,admin]',
+        'is_active' => 'if_exist|library_status',
         'last_login_at' => 'permit_empty|valid_date[Y-m-d H:i:s]',
     ];
-    protected $beforeInsert = ['hashPassword'];
-    protected $beforeUpdate = ['hashPassword'];
+    protected $validationMessages = [
+        'username' => ['regex_match' => 'Tên đăng nhập dài 3–50 ký tự, bắt đầu bằng chữ/số và chỉ chứa chữ, số, dấu gạch dưới, dấu chấm hoặc gạch ngang.'],
+        'full_name' => ['library_text' => 'Họ tên không được trống, chỉ có khoảng trắng, chứa ký tự điều khiển hoặc dài quá 150 ký tự.'],
+        'role' => ['in_list' => 'Vai trò chỉ nhận user hoặc admin.'],
+    ];
+    protected $beforeInsert = ['normalizeUserData', 'hashPassword'];
+    protected $beforeUpdate = ['normalizeUserData', 'hashPassword'];
+
+    protected function normalizeUserData(array $data): array
+    {
+        if (isset($data['data']['full_name']) && is_string($data['data']['full_name'])) {
+            $data['data']['full_name'] = trim($data['data']['full_name']);
+        }
+        if (array_key_exists('email', $data['data']) && $data['data']['email'] === '') {
+            $data['data']['email'] = null;
+        }
+
+        return $data;
+    }
 
     /** Call insert/update with a plain password; only the hash is persisted. */
     protected function hashPassword(array $data): array

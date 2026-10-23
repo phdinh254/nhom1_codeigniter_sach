@@ -5,7 +5,11 @@
  */
 $book   = $book ?? [];
 $errors = session()->getFlashdata('errors') ?? [];
-$val    = static fn (string $key) => old($key, $book[$key] ?? '');
+$val = static function (string $key) use ($book): string {
+    $value = old($key, $book[$key] ?? '');
+
+    return is_string($value) || is_int($value) || is_float($value) ? (string) $value : '';
+};
 ?>
 
 <?php if (! empty($errors)): ?>
@@ -44,23 +48,23 @@ $val    = static fn (string $key) => old($key, $book[$key] ?? '');
         <div class="col-md-4 mb-3">
             <label for="published_year" class="form-label">Năm xuất bản</label>
             <input type="number" id="published_year" name="published_year" class="form-control"
-                   min="1000" max="2100" value="<?= esc($val('published_year')) ?>">
+                   min="1000" max="<?= \App\Validation\LibraryRules::currentYear() ?>" step="1" value="<?= esc($val('published_year')) ?>">
         </div>
         <div class="col-md-4 mb-3">
             <label for="price" class="form-label">Giá (đ) <span class="text-danger">*</span></label>
             <input type="number" id="price" name="price" class="form-control"
-                   min="0" step="0.01" value="<?= esc($val('price')) ?>" required>
+                   min="0" max="99999999.99" step="0.01" value="<?= esc($val('price')) ?>" required>
         </div>
         <div class="col-md-4 mb-3">
             <label for="quantity" class="form-label">Số lượng <span class="text-danger">*</span></label>
             <input type="number" id="quantity" name="quantity" class="form-control"
-                   min="0" step="1" value="<?= esc($val('quantity')) ?>" required>
+                   min="0" max="4294967295" step="1" value="<?= esc($val('quantity')) ?>" required>
         </div>
     </div>
 
     <div class="mb-3">
         <label for="description" class="form-label">Mô tả</label>
-        <textarea id="description" name="description" rows="4" class="form-control"><?= esc($val('description')) ?></textarea>
+        <textarea id="description" name="description" rows="4" maxlength="10000" class="form-control"><?= esc($val('description')) ?></textarea>
     </div>
 
     <button type="submit" class="btn <?= esc($submitClass) ?>"><?= esc($submitLabel) ?></button>

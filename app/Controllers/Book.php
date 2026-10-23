@@ -28,7 +28,8 @@ class Book extends BaseController
      */
     public function index(): string
     {
-        $keyword = trim((string) $this->request->getGet('keyword'));
+        $keyword = $this->request->getGet('keyword');
+        $keyword = is_string($keyword) ? trim($keyword) : '';
 
         if ($keyword !== '') {
             $this->bookModel->like('title', $keyword);
@@ -110,10 +111,19 @@ class Book extends BaseController
      */
     private function bookData(): array
     {
-        $data = $this->request->getPost() ?? [];
+        $data = array_intersect_key(
+            $this->request->getPost() ?? [],
+            array_flip(['title', 'author', 'publisher', 'published_year', 'price', 'quantity', 'description']),
+        );
+
+        foreach ($data as $field => $value) {
+            if (is_string($value)) {
+                $data[$field] = trim($value);
+            }
+        }
 
         foreach (['publisher', 'published_year', 'description'] as $field) {
-            if (array_key_exists($field, $data) && trim((string) $data[$field]) === '') {
+            if (array_key_exists($field, $data) && $data[$field] === '') {
                 $data[$field] = null;
             }
         }
