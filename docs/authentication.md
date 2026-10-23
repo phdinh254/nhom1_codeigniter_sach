@@ -51,5 +51,5 @@ Tài khoản mẫu:
 | Username | Mật khẩu | Vai trò | Ghi chú |
 |---|---|---|---|
 | admin | admin123 | admin | |
-| nhanvien | nhanvien123 | user | |
+| nhanvien | nhanvien123 | user | Họ tên hiển thị: Độc giả (giữ tên đăng nhập cũ) |
 | taikhoankhoa | khoa123456 | user | Bị khóa, dùng để test thông báo lỗi |
