@@ -105,10 +105,20 @@ class Book extends BaseController
 
     /**
      * Posted form data; BookModel drops any field not in its $allowedFields.
+     * Empty optional inputs become NULL: MySQL strict mode rejects '' for
+     * the SMALLINT published_year column.
      */
     private function bookData(): array
     {
-        return $this->request->getPost() ?? [];
+        $data = $this->request->getPost() ?? [];
+
+        foreach (['publisher', 'published_year', 'description'] as $field) {
+            if (array_key_exists($field, $data) && trim((string) $data[$field]) === '') {
+                $data[$field] = null;
+            }
+        }
+
+        return $data;
     }
 
     private function findOrFail(int $id): array|object

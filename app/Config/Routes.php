@@ -11,10 +11,10 @@ $routes->group('books', ['filter' => 'auth'], static function ($routes) {
 
     $routes->group('', ['filter' => 'admin'], static function ($routes) {
         $routes->get('create', 'Book::create');
-        $routes->post('store', 'Book::store');
+        $routes->post('store', 'Book::store', ['filter' => 'csrf']);
         $routes->get('edit/(:num)', 'Book::edit/$1');
-        $routes->post('update/(:num)', 'Book::update/$1');
-        $routes->post('delete/(:num)', 'Book::delete/$1');
+        $routes->post('update/(:num)', 'Book::update/$1', ['filter' => 'csrf']);
+        $routes->post('delete/(:num)', 'Book::delete/$1', ['filter' => 'csrf']);
     });
 });
 

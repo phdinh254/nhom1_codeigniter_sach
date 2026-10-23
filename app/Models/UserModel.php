@@ -49,10 +49,10 @@ class UserModel extends Model
         if ($user === null || ! password_verify($password, $user['password_hash'])) {
             return null;
         }
-        if (password_needs_rehash($user['password_hash'], PASSWORD_BCRYPT)) {
-            if (! $this->update($user['id'], ['password' => $password])) {
-                return null;
-            }
+        // A failed rehash (e.g. legacy password shorter than the current rules)
+        // must not block a login whose password was already verified.
+        if (password_needs_rehash($user['password_hash'], PASSWORD_BCRYPT)
+            && $this->update($user['id'], ['password' => $password])) {
             $user = $this->find($user['id']);
         }
 
