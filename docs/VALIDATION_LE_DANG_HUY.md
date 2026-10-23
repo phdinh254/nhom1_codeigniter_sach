@@ -22,9 +22,9 @@ Controller sách chỉ lấy các trường sách cho phép; không ép mảng t
 
 ## Đổi tên trong dữ liệu hiện có
 
-Migration RenameSampleUserToReader chỉ đổi full_name của tài khoản mẫu nhanvien từ đúng tên cũ “Nhân viên bán sách” thành “Độc giả”. Không đổi username, mật khẩu, email, ID, vai trò hay trạng thái. Tên đã được người dùng tùy chỉnh được giữ nguyên. Seeder cũng dùng tên mới cho database tạo mới.
+Migration `RenameSampleUserToReader` đã phát hành chỉ đổi tên hiển thị. Migration tiếp theo `ConvertSampleAccountToReader` hoàn tất chuyển tài khoản mẫu cũ thành độc giả: username `docgia`, mật khẩu mẫu `docgia123` (chỉ lưu hash bcrypt), họ tên “Độc giả”, email `docgia@nhasach.local`, quyền `user`. ID, trạng thái khóa và các dữ liệu liên kết được giữ nguyên. Seeder tạo cùng tài khoản độc giả trên database mới.
 
-Đăng nhập bằng tên cũ nhanvien vẫn hoạt động. role=user tiếp tục là mã nội bộ cho tài khoản thường; không tạo mã role mới làm sai các filter phân quyền.
+Sau khi nâng cấp, đăng nhập bằng `docgia` / `docgia123`; thông tin đăng nhập cũ không còn dùng được. `role=user` là mã nội bộ cho độc giả, hiển thị “Độc giả” trên thanh điều hướng và trang tài khoản; filter vẫn chặn quyền quản trị. Migration chỉ chuyển tài khoản có username cũ `nhanvien` và tên mẫu “Nhân viên bán sách” hoặc “Độc giả”, giữ nguyên tài khoản đã có tên tùy chỉnh. Nếu username/email đích đã được tài khoản khác sử dụng, migration báo lỗi trước khi thay đổi dữ liệu. Chạy lại migration hoặc seeder không đặt lại mật khẩu tài khoản đã chuyển. Rollback migration mới giữ tài khoản độc giả vì không thể khôi phục mật khẩu trước đó.
 
 ## Áp dụng
 
@@ -38,7 +38,7 @@ php spark db:seed UserSeeder
 php vendor/bin/phpunit tests/database
 ~~~
 
-Chạy migration trước seeder để cập nhật tên trên database đang có. Chỉ sửa seeder sẽ không đổi tên tài khoản đã tồn tại. Đăng xuất/đăng nhập lại để session nhận họ tên mới. Không cần xóa database hoặc chạy migrate:refresh.
+Chạy migration trước seeder để cập nhật tài khoản trên database đang có. Chỉ sửa seeder sẽ không chuyển tài khoản đã tồn tại. Đăng xuất/đăng nhập lại để session nhận tên đăng nhập, họ tên và quyền mới. Không cần xóa database hoặc chạy migrate:refresh.
 
 ## Kiểm tra thủ công
 
@@ -46,9 +46,9 @@ Chạy migration trước seeder để cập nhật tên trên database đang c�
 2. Nhập năm hiện tại + 1: lưu phải bị từ chối và hiển thị lỗi.
 3. Nhập năm hiện tại: lưu hợp lệ; để trống năm: lưu NULL.
 4. Thử tên chỉ có khoảng trắng, giá âm, giá có 3 số thập phân, số lượng lẻ: phải bị từ chối.
-5. Kiểm tra users.full_name của tài khoản mẫu nhanvien là Độc giả; đăng nhập lại bằng mật khẩu cũ.
+5. Đăng nhập bằng `docgia` / `docgia123`; kiểm tra họ tên và vai trò hiển thị là Độc giả, email `docgia@nhasach.local`, không vào được trang quản trị. Tên đăng nhập cũ không còn hoạt động.
 6. Kiểm tra tên tùy chỉnh của tài khoản khác không bị đổi.
 
 ## Kiểm thử tự động
 
-LibraryValidationTest bổ sung kiểm tra giới hạn năm khi thêm/sửa, chuyển năm theo giờ Việt Nam, dữ liệu sai kiểu, giới hạn số, dữ liệu bắt buộc, email trống, migration bảo toàn tài khoản và seeder chạy lặp lại.
+LibraryValidationTest kiểm tra giới hạn năm khi thêm/sửa, chuyển năm theo giờ Việt Nam, dữ liệu sai kiểu, giới hạn số, dữ liệu bắt buộc, email trống và seeder chạy lặp lại. SampleReaderMigrationTest kiểm tra chuyển tài khoản cũ sau migration đã phát hành, bảo toàn ID/trạng thái/tên tùy chỉnh, mật khẩu mới được băm, xung đột username/email và chạy lại không đặt lại mật khẩu.

@@ -22,7 +22,7 @@
             <a href="<?= site_url('dashboard') ?>" class="text-white text-decoration-none d-none d-sm-inline">
                 <i class="bi bi-person-circle me-1"></i><?= esc(session()->get('full_name') ?? '') ?>
                 <span class="badge <?= strtolower((string) session()->get('role')) === 'admin' ? 'text-bg-danger' : 'text-bg-secondary' ?>">
-                    <?= esc(session()->get('role') ?? '') ?>
+                    <?= esc(session()->get('role') === 'user' ? 'Độc giả' : (session()->get('role') ?? '')) ?>
                 </span>
             </a>
             <form action="<?= site_url('logout') ?>" method="post" class="m-0">

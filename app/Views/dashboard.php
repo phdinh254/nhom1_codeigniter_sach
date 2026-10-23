@@ -17,7 +17,7 @@
                 <th class="ps-0 pe-4">Vai trò</th>
                 <td>
                     <span class="badge <?= $role === 'admin' ? 'text-bg-danger' : 'text-bg-secondary' ?>">
-                        <?= esc($role) ?>
+                        <?= esc($role === 'user' ? 'Độc giả' : $role) ?>
                     </span>
                 </td>
             </tr>

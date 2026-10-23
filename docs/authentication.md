@@ -51,5 +51,7 @@ Tài khoản mẫu:
 | Username | Mật khẩu | Vai trò | Ghi chú |
 |---|---|---|---|
 | admin | admin123 | admin | |
-| nhanvien | nhanvien123 | user | Họ tên hiển thị: Độc giả (giữ tên đăng nhập cũ) |
+| docgia | docgia123 | user | Họ tên và vai trò hiển thị: Độc giả |
 | taikhoankhoa | khoa123456 | user | Bị khóa, dùng để test thông báo lỗi |
+
+Với database đã có tài khoản mẫu cũ, chạy `php spark migrate` trước seeder để đổi cùng tài khoản sang `docgia` / `docgia123`, email `docgia@nhasach.local`. Mã quyền nội bộ `user` được hiển thị là “Độc giả”; tài khoản này không có quyền quản trị. Đăng xuất và đăng nhập lại để cập nhật session.

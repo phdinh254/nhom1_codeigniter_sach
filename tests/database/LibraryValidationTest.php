@@ -158,10 +158,12 @@ final class LibraryValidationTest extends CIUnitTestCase
         $seeder->call('UserSeeder');
         $seeder->call('UserSeeder');
         $model = new UserModel();
-        $reader = $model->findByUsername('nhanvien');
+        $reader = $model->findByUsername('docgia');
         $this->assertSame('Độc giả', $reader['full_name']);
         $this->assertSame('user', $reader['role']);
-        $this->assertNotNull($model->verifyCredentials('nhanvien', 'nhanvien123'));
+        $this->assertSame('docgia@nhasach.local', $reader['email']);
+        $this->assertNotNull($model->verifyCredentials('docgia', 'docgia123'));
+        $this->assertNull($model->findByUsername('nhanvien'));
         $this->assertSame(3, $model->countAllResults());
     }
 }
