@@ -29,6 +29,12 @@ class AuthFilter implements FilterInterface
             || $session->has('user');
 
         if (! $isLoggedIn) {
+            // Nhớ trang đang mở để đăng nhập xong quay lại đúng trang đó
+            if ($request->getMethod() === 'GET') {
+                $query = $request->getUri()->getQuery();
+                $session->set('redirect_url', uri_string() . ($query !== '' ? '?' . $query : ''));
+            }
+
             return redirect()->to('/login')->with('error', 'Vui lòng đăng nhập để tiếp tục!');
         }
     }

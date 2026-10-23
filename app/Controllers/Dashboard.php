@@ -16,6 +16,7 @@ class Dashboard extends BaseController
         }
 
         return view('dashboard', [
+            'title'    => 'Tài khoản',
             'fullName' => session()->get('full_name'),
             'username' => session()->get('username'),
             'role'     => session()->get('role'),
