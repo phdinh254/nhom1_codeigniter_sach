@@ -1,83 +1,169 @@
-# Nhóm 1 — Quản lý sách với CodeIgniter 4
+# Quản lý sách với CodeIgniter 4 (Nhóm 1)
 
-Phần Database & Model của **Lê Đăng Huy**, nhánh `feature/database-model`:
+Ứng dụng quản lý sách được xây dựng bằng CodeIgniter 4, có đăng nhập, phân quyền Admin/User và các chức năng CRUD sách.
 
-- CSDL `quan_ly_sach`; migration `books`, `users`.
-- `BookModel`, `UserModel`, dữ liệu demo và kiểm thử database/model.
-- [Hướng dẫn từng bước bằng VS Code, phpMyAdmin và Git](docs/HUONG_DAN_LE_DANG_HUY.md).
+- **Repository:** [nhom1_codeigniter_sach](https://github.com/phdinh254/nhom1_codeigniter_sach)
 
-Yêu cầu PHP **8.2+**. Xem hướng dẫn trước khi chạy migration.
+## Công nghệ sử dụng
 
-Sau khi lấy bản tích hợp với Authentication, chạy `php spark migrate` để
-thống nhất `users.password_hash`, `is_active` và `last_login_at`.
-Migration giữ tài khoản và hash từ database cũ; không cần xóa database.
+- CodeIgniter 4
+- PHP 8.2+
+- MySQL (quản lý bằng phpMyAdmin)
+- XAMPP
+- Composer
+- Git/GitHub
 
-# CodeIgniter 4 Application Starter
+## Yêu cầu môi trường
 
-## What is CodeIgniter?
+- PHP 8.2 trở lên
+- PHP cần bật các extension: `intl`, `mbstring`, `json`, `mysqlnd`, `libcurl`
+- Composer
+- MySQL hoặc XAMPP
+- Git
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+## Cài đặt và chạy
 
-This repository holds a composer-installable app starter.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+1. Clone repository và vào thư mục project:
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+   ```bash
+   git clone https://github.com/phdinh254/nhom1_codeigniter_sach.git
+   cd nhom1_codeigniter_sach
+   ```
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+2. Cài đặt các dependency:
 
-## Installation & updates
+   ```bash
+   composer install
+   ```
 
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
-there is a new release of the framework.
+3. Tạo file `.env` từ file mẫu `.env.example`:
 
-When updating, check the release notes to see if there are any changes you might need to apply
-to your `app` folder. The affected files can be copied or merged from
-`vendor/codeigniter4/framework/app`.
+   ```bash
+   copy .env.example .env
+   ```
 
-## Setup
+   Trên macOS/Linux, dùng:
 
-Copy `env` to `.env` and tailor for your app, specifically the baseURL
-and any database settings.
+   ```bash
+   cp .env.example .env
+   ```
 
-## Important Change with index.php
+4. Mở XAMPP Control Panel, bật **Apache** và **MySQL**. Tạo database `quan_ly_sach` trong phpMyAdmin hoặc chạy file `database/create_database.sql` bằng tab SQL trong phpMyAdmin. Mở `.env` và kiểm tra cấu hình kết nối database, cập nhật tên đăng nhập hoặc mật khẩu nếu thiết lập MySQL của bạn khác:
 
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
+   ```ini
+   database.default.hostname = localhost
+   database.default.database = quan_ly_sach
+   database.default.username = root
+   database.default.password = ''
+   database.default.DBDriver = MySQLi
+   ```
 
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
+5. Chạy migration để tạo/cập nhật cấu trúc database:
 
-**Please** read the user guide for a better explanation of how CI4 works!
+   ```bash
+   php spark migrate
+   ```
 
-## Repository Management
+6. Tạo tài khoản mẫu và dữ liệu sách:
 
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
+   ```bash
+   php spark db:seed UserSeeder
+   php spark db:seed DemoSeeder
+   ```
 
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
+7. Khởi động server phát triển:
 
-## Server Requirements
+   ```bash
+   php spark serve
+   ```
 
-PHP version 8.2 or higher is required, with the following extensions installed:
+   Mở [http://localhost:8080](http://localhost:8080) trên trình duyệt.
 
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
+## Cơ sở dữ liệu
 
-> [!WARNING]
-> - The end of life date for PHP 7.4 was November 28, 2022.
-> - The end of life date for PHP 8.0 was November 26, 2023.
-> - The end of life date for PHP 8.1 was December 31, 2025.
-> - If you are still using below PHP 8.2, you should upgrade immediately.
-> - The end of life date for PHP 8.2 will be December 31, 2026.
+Phần Database & Model do **Lê Đăng Huy** phụ trách, gồm database `quan_ly_sach`, migration cho bảng `books` và `users`, cùng `BookModel` và `UserModel`. Yêu cầu PHP 8.2 trở lên; chạy `php spark migrate` để áp dụng migration.
 
-Additionally, make sure that the following extensions are enabled in your PHP:
+Sau khi tích hợp Authentication, chạy `php spark migrate` để thống nhất các cột `users.password_hash`, `is_active` và `last_login_at`. Migration giữ lại tài khoản cùng mật khẩu đã băm từ database cũ, vì vậy không cần xóa database.
 
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+Xem [hướng dẫn Database & Model](docs/HUONG_DAN_LE_DANG_HUY.md).
+
+## Cấu trúc thư mục chính
+
+- `app/` — mã nguồn ứng dụng:
+  - `app/Controllers/` — các controller xử lý yêu cầu, gồm xác thực, sách và dashboard.
+  - `app/Models/` — model thao tác với dữ liệu sách và người dùng.
+  - `app/Views/` — giao diện đăng nhập, sách, dashboard và các trang lỗi.
+  - `app/Filters/` — filter xác thực và kiểm tra quyền Admin.
+  - `app/Config/` — cấu hình ứng dụng, database, routes, filter và validation.
+  - `app/Database/Migrations/` — migration tạo và cập nhật cấu trúc database.
+  - `app/Database/Seeds/` — seeder dữ liệu sách và người dùng.
+  - `app/Validation/` — các quy tắc validation tùy chỉnh.
+  - `app/Language/` — thông báo validation theo ngôn ngữ.
+- `database/` — hiện có `create_database.sql`, script SQL tạo database.
+- `docs/` — tài liệu của project.
+- `public/` — điểm vào ứng dụng và tài nguyên công khai.
+- `tests/` — mã kiểm thử.
+- `writable/` — thư mục lưu dữ liệu phát sinh khi ứng dụng chạy.
+
+## Quy trình làm việc nhóm
+
+- Mỗi thành viên phát triển trên nhánh riêng.
+- Khi hoàn tất công việc, thành viên tạo Pull Request để đề xuất thay đổi.
+- Trưởng nhóm review Pull Request và merge các thay đổi đã được duyệt vào nhánh chính.
+
+## Thành viên nhóm
+
+| STT | Thành viên | Vai trò |
+| --- | --- | --- |
+| 1 | Trần Phú Dinh | Trưởng nhóm / Tích hợp |
+| 2 | Lê Đăng Huy | Database & Model |
+| 3 | Sơn Trung Nguyên | Authentication |
+| 4 | Phan Trần Trường Huy | Phân quyền |
+| 5 | Trần Hoàng Long | CRUD Backend |
+| 6 | Khưu Gia Bảo | CRUD Frontend |
+| 7 | Từ Phan Thành Lập | Validation & Testing |
+| 8 | Từ Gia Đạt | Tài liệu & README |
+
+## Chức năng
+
+- Đăng nhập bằng tài khoản và mật khẩu; tài khoản không hoạt động không thể đăng nhập.
+- Đăng xuất.
+- Xem dashboard tài khoản sau khi đăng nhập.
+- Xem danh sách sách, tìm theo tên sách và phân trang.
+- Admin thêm, xem chi tiết để sửa, cập nhật và xóa sách.
+- Kiểm tra dữ liệu đầu vào cho đăng nhập, thông tin sách và thông tin người dùng.
+- Phân quyền: người dùng đã đăng nhập xem danh sách sách; chỉ Admin được thực hiện các thao tác quản lý sách.
+
+## Route và phân quyền
+
+| Route | Phương thức HTTP | Controller::method | Quyền truy cập |
+| --- | --- | --- | --- |
+| `/` | GET | `Home::index` | công khai |
+| `/login` | GET | `Auth::login` | công khai |
+| `/login` | POST | `Auth::attemptLogin` | công khai |
+| `/logout` | POST | `Auth::logout` | công khai |
+| `/dashboard` | GET | `Dashboard::index` | cần đăng nhập |
+| `/books` | GET | `Book::index` | cần đăng nhập |
+| `/books/create` | GET | `Book::create` | chỉ Admin |
+| `/books/store` | POST | `Book::store` | chỉ Admin |
+| `/books/edit/{id}` | GET | `Book::edit($id)` | chỉ Admin |
+| `/books/update/{id}` | POST | `Book::update($id)` | chỉ Admin |
+| `/books/delete/{id}` | POST | `Book::delete($id)` | chỉ Admin |
+| `/no-access` | GET | Closure (trả trang lỗi 403) | công khai |
+
+Các route POST `/login`, `/logout`, `/books/store`, `/books/update/{id}` và `/books/delete/{id}` có filter CSRF. Các route sách được bảo vệ bởi `auth`; nhóm route thêm/sửa/xóa còn có filter `admin`.
+
+## Tài khoản demo
+
+| Username | Mật khẩu | Quyền / trạng thái |
+| --- | --- | --- |
+| `admin` | `admin123` | Admin, đang hoạt động |
+| `nhanvien` | `nhanvien123` | User, đang hoạt động |
+| `taikhoankhoa` | `khoa123456` | User, bị khóa |
+| `huy_demo` | `DemoHuy@2026` | User (vai trò mặc định), đang hoạt động |
+
+Chạy `php spark db:seed UserSeeder` để tạo ba tài khoản đầu. Chạy `php spark db:seed DemoSeeder` để thêm sách mẫu và tài khoản `huy_demo`. Đây là dữ liệu phục vụ demo/kiểm thử; không chạy seeder demo trên môi trường công khai.
+
+## Ảnh minh họa
+
+Đang cập nhật
