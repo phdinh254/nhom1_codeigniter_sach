@@ -161,7 +161,3 @@ Các route POST `/login`, `/logout`, `/books/store`, `/books/update/{id}` và `/
 | `docgia` | `docgia123` | User, đang hoạt động |
 
 Chạy `php spark db:seed UserSeeder` để tạo ba tài khoản đầu. Chạy `php spark db:seed DemoSeeder` để thêm sách mẫu và tài khoản `huy_demo`. Đây là dữ liệu phục vụ demo/kiểm thử; không chạy seeder demo trên môi trường công khai.
-
-## Ảnh minh họa
-
-Đang cập nhật
