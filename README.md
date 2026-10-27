@@ -158,9 +158,7 @@ Các route POST `/login`, `/logout`, `/books/store`, `/books/update/{id}` và `/
 | Username | Mật khẩu | Quyền / trạng thái |
 | --- | --- | --- |
 | `admin` | `admin123` | Admin, đang hoạt động |
-| `nhanvien` | `nhanvien123` | User, đang hoạt động |
-| `taikhoankhoa` | `khoa123456` | User, bị khóa |
-| `huy_demo` | `DemoHuy@2026` | User (vai trò mặc định), đang hoạt động |
+| `docgia` | `docgia123` | User, đang hoạt động |
 
 Chạy `php spark db:seed UserSeeder` để tạo ba tài khoản đầu. Chạy `php spark db:seed DemoSeeder` để thêm sách mẫu và tài khoản `huy_demo`. Đây là dữ liệu phục vụ demo/kiểm thử; không chạy seeder demo trên môi trường công khai.
 
