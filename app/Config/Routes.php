@@ -22,6 +22,8 @@ $routes->group('books', ['filter' => 'auth'], static function ($routes) {
 $routes->get('login', 'Auth::login');
 $routes->post('login', 'Auth::attemptLogin', ['filter' => 'csrf']);
 $routes->post('logout', 'Auth::logout', ['filter' => 'csrf']);
+$routes->get('register', 'Auth::register');
+$routes->post('register', 'Auth::attemptRegister', ['filter' => 'csrf']);
 $routes->get('dashboard', 'Dashboard::index', ['filter' => 'auth']);
 $routes->get('no-access', static function () {
     return response()->setStatusCode(403)->setBody(view('errors/html/error_403'));
