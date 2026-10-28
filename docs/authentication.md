@@ -55,7 +55,7 @@ Các khóa Session `isLoggedIn` và `role` có thể dùng lại cho phần Auth
 
 ```bash
 composer install
-cp env .env          # sửa database.default.* cho đúng MySQL trên máy
+cp .env.example .env # sửa database.default.* cho đúng MySQL trên máy
 php spark migrate
 php spark db:seed UserSeeder
 php spark serve
