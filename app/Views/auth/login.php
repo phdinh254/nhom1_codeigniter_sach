@@ -91,11 +91,6 @@
                 Chưa có tài khoản? <a href="<?= site_url('register') ?>">Đăng ký</a>
             </p>
 
-            <?php if (ENVIRONMENT === 'development'): ?>
-                <p class="small text-muted text-center mt-4 mb-0">
-                    Tài khoản thử: <code>admin</code> / <code>admin123</code>
-                </p>
-            <?php endif ?>
         </div>
     </div>
 </main>

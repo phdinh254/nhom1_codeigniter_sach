@@ -3,9 +3,9 @@
 use CodeIgniter\Router\RouteCollection;
 
 /** @var RouteCollection $routes */
-$routes->get('/', 'Home::index');
+$routes->get('/', static fn () => redirect()->to(site_url('login')));
 
-// Book CRUD (Bảo vệ bởi AuthFilter cho User/Admin; các thao tác CRUD chỉ dành cho Admin)
+// Book CRUD (Độc giả và Quản trị viên phải đăng nhập; thao tác quản lý chỉ dành cho Quản trị viên)
 $routes->group('books', ['filter' => 'auth'], static function ($routes) {
     $routes->get('/', 'Book::index');
 
