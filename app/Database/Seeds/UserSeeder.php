@@ -26,10 +26,10 @@ class UserSeeder extends Seeder
                 'is_active' => 1,
             ],
             [
-                'username'  => 'nhanvien',
-                'password'  => 'nhanvien123',
+                'username'  => 'docgia',
+                'password'  => 'docgia123',
                 'full_name' => 'Độc giả',
-                'email'     => 'nhanvien@nhasach.local',
+                'email'     => 'docgia@nhasach.local',
                 'role'      => 'user',
                 'is_active' => 1,
             ],
