@@ -4,6 +4,7 @@ namespace App\Database\Seeds;
 
 use App\Models\UserModel;
 use CodeIgniter\Database\Seeder;
+use RuntimeException;
 
 /**
  * Tạo sẵn tài khoản để kiểm thử đăng nhập.
@@ -25,10 +26,10 @@ class UserSeeder extends Seeder
                 'is_active' => 1,
             ],
             [
-                'username'  => 'nhanvien',
-                'password'  => 'nhanvien123',
-                'full_name' => 'Nhân viên bán sách',
-                'email'     => 'nhanvien@nhasach.local',
+                'username'  => 'docgia',
+                'password'  => 'docgia123',
+                'full_name' => 'Độc giả',
+                'email'     => 'docgia@nhasach.local',
                 'role'      => 'user',
                 'is_active' => 1,
             ],
@@ -45,7 +46,9 @@ class UserSeeder extends Seeder
         foreach ($users as $user) {
             // Chạy seeder nhiều lần không bị trùng username
             if ($userModel->findByUsername($user['username']) === null) {
-                $userModel->insert($user);
+                if ($userModel->insert($user) === false) {
+                    throw new RuntimeException(implode('; ', $userModel->errors()));
+                }
             }
         }
     }
